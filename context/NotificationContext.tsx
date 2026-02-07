@@ -1,6 +1,5 @@
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import { Image } from "expo-image";
 import * as Notifications from "expo-notifications";
 import { useEffect, useState } from "react";
 import { Button, Platform, Text, View } from "react-native";
@@ -15,7 +14,6 @@ Notifications.setNotificationHandler({
 });
 
 async function sendPushNotification(expoPushToken: string) {
-  console.log(expoPushToken, "this is expo push token jj------------>");
   const message = {
     to: expoPushToken,
     sound: "default",
@@ -36,7 +34,6 @@ async function sendPushNotification(expoPushToken: string) {
 }
 
 function handleRegistrationError(errorMessage: string) {
-  console.log(errorMessage, "error massage _______>");
   alert(errorMessage);
   throw new Error(errorMessage);
 }
@@ -86,7 +83,8 @@ async function registerForPushNotificationsAsync() {
     handleRegistrationError("Must use physical device for push notifications");
   }
 }
-export default function Index() {
+
+export default function App() {
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState<
     Notifications.Notification | undefined
@@ -116,53 +114,25 @@ export default function Index() {
 
   return (
     <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#C6D7F7",
-      }}
+      style={{ flex: 1, alignItems: "center", justifyContent: "space-around" }}
     >
-      <Image
-        style={{ width: 200, height: 200, marginBottom: 40 }}
-        source={require("../assets/images/success_kyc.png")}
-      />
-      <Text
-        style={{
-          fontSize: 20,
-          fontWeight: "bold",
-          color: "blue",
-          textAlign: "center",
-        }}
-      >
-        Hello, world! There this push notification test app for Expo
-      </Text>
-
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "space-around",
-          marginTop: 40,
-          gap: 20,
-        }}
-      >
-        <Text
-          style={{
-            textAlign: "center",
-          }}
-        >
-          Your Expo push token:{" "}
-          {expoPushToken
-            ? expoPushToken
-            : "No token found please check your device permission"}
+      <Text>Your Expo push token: {expoPushToken}</Text>
+      <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <Text>
+          Title: {notification && notification.request.content.title}{" "}
         </Text>
-        <Button
-          title="Press to Send Notification"
-          onPress={async () => {
-            await sendPushNotification(expoPushToken);
-          }}
-        />
+        <Text>Body: {notification && notification.request.content.body}</Text>
+        <Text>
+          Data:{" "}
+          {notification && JSON.stringify(notification.request.content.data)}
+        </Text>
       </View>
+      <Button
+        title="Press to Send Notification"
+        onPress={async () => {
+          await sendPushNotification(expoPushToken);
+        }}
+      />
     </View>
   );
 }

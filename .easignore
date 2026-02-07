@@ -41,7 +41,3 @@ app-example
 # generated native folders
 /ios
 /android
-
-# ========== firebase google services files ==========
-google-services.json
-expo-push-notification-fontend-firebase-adminsdk-fbsvc-9820f2bbd0.json
