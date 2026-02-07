@@ -1,50 +1,75 @@
-# Welcome to your Expo app 👋
+# Push Notification Setup (Expo + Firebase)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This document explains how to set up Firebase Push Notifications in an Expo app and send notifications using the Expo push token.
 
-## Get started
+---
 
-1. Install dependencies
+## 1. Firebase App Configuration
 
-   ```bash
-   npm install
-   ```
+1. Create a new app in the Firebase Console (iOS/Android).
+2. Download the configuration file:
+   - Android: `google-services.json`
+   - iOS: `GoogleService-Info.plist`
+3. Go to the **Credentials/Configuration** section in the Expo Dashboard and upload the JSON/PLIST file.
+4. Get the **Server Key** (SHA key) from Firebase and add it to the Expo Dashboard.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 2. Expo App Configuration
 
-In the output, you'll find options to open the app in a
+1. Add the following notification configuration in `app.json` or `app.config.js`:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+```json
+{
+  "expo": {
+    "name": "YourAppName",
+    "slug": "your-app-slug",
+    "version": "1.0.0",
+    "platforms": ["ios", "android"],
+    "notification": {
+      "icon": "./assets/notification-icon.png",
+      "color": "#6523E7"
+    }
+  }
+}
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+3. EAS Build & Credentials
 
-When you're ready, run:
+Upload Firebase JSON/PLIST file and Server Key to EAS Build credentials.
 
-```bash
-npm run reset-project
+Run the build:
+
+eas build
+eas build --platform android
+eas build --platform ios
+
+
+##Push Token Verification
+
+Use the Expo SDK to get the push token:
+
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notifications!');
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+  } else {
+    alert('Push notifications require a physical device!');
+  }
+  return token;
+}
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
