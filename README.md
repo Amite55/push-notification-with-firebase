@@ -73,3 +73,7 @@ async function registerForPushNotificationsAsync() {
   return token;
 }
 ```
+
+
+
+Doc link expo : https://docs.expo.dev/push-notifications/push-notifications-setup/
